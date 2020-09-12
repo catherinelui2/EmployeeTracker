@@ -32,9 +32,9 @@ CREATE TABLE manager (
 );
 
 
-
 USE orgChart_db;
 
+-- departments --
 INSERT INTO department (name)
 VALUES ("Sales");
 
@@ -50,7 +50,7 @@ VALUES ("Legal");
 INSERT INTO role (title, salary, department_id)
 VALUES ("Sales Lead", "100000", 1);
 
-USE orgChart_db;
+-- role data -- 
 INSERT INTO role (title, salary, department_id)
 VALUES ("Salesperson", "80000", 1);
 
@@ -68,3 +68,41 @@ VALUES ("Lawyer", "190000", 4);
 
 INSERT INTO role (title, salary, department_id)
 VALUES ("Accountant", "1250000", 3);
+
+-- Manager Values
+INSERT INTO manager (first_name, last_name)
+VALUES ("Ashley", "Rodriguez");
+
+INSERT INTO manager (first_name, last_name)
+VALUES ("John", "Doe");
+
+INSERT INTO manager (first_name, last_name)
+VALUES ("Sarah", "Lourd");
+
+INSERT INTO manager (first_name, last_name)
+VALUES ("Mike", "Chan");
+
+-- employee data--
+INSERT employee (first_name, last_name, role_id, manager_id)
+VALUES ("John", "Doe", 1, 1);
+
+INSERT employee (first_name, last_name, role_id, manager_id)
+VALUES ("Mike", "Chan", 2, 2);
+
+INSERT employee (first_name, last_name, role_id)
+VALUES ("Ashley", "Rodriquez",3);
+
+INSERT employee (first_name, last_name, role_id, manager_id)
+VALUES ("Kevin", "Johnson", 4, 1);
+
+INSERT employee (first_name, last_name, role_id)
+VALUES ("Malia", "Brown", 5 );
+
+INSERT employee (first_name, last_name, role_id, manager_id)
+VALUES ("Tom", "Allen", 6, 3);
+
+INSERT employee (first_name, last_name, role_id)
+VALUES ("Sarah", "Lourd", 6);
+
+INSERT employee (first_name, last_name, role_id)
+VALUES ("Ken", "Smith", 7);
