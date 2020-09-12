@@ -68,6 +68,12 @@ const start = () => {
 }
 
 
+//View all Employees
+const viewAllEmployees = () => {
+    let query = "SELECT orgChart_db.employee, orgChart_db.role, orgChart_db.department";
+    query += "FROM "
+}
+
 // allow users to add dept, role, employees
 //view dept, roles, employees
 // update employees roles
