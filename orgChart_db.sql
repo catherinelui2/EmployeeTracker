@@ -70,16 +70,16 @@ INSERT INTO role (title, salary, department_id)
 VALUES ("Accountant", "1250000", 3);
 
 -- Manager Values
-INSERT INTO manager (first_name, last_name)
+INSERT INTO manager (mgr_first, mgr_last)
 VALUES ("Ashley", "Rodriguez");
 
-INSERT INTO manager (first_name, last_name)
+INSERT INTO manager (mgr_first, mgr_last)
 VALUES ("John", "Doe");
 
-INSERT INTO manager (first_name, last_name)
+INSERT INTO manager (mgr_first, mgr_last)
 VALUES ("Sarah", "Lourd");
 
-INSERT INTO manager (first_name, last_name)
+INSERT INTO manager (mgr_first, mgr_last)
 VALUES ("Mike", "Chan");
 
 -- employee data--

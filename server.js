@@ -101,8 +101,6 @@ const viewAllEmployeesByDept = () => {
         console.log("----------------------------------");
         start();
     })
-    
-
 }
 
 //view all employees by mgr
@@ -122,8 +120,80 @@ const viewAllEmployeesByMgr = () => {
         start();
     })
 }
-// add employee
 
+// add employee
+const addEmployee = () => {
+    let query = "SELECT employee.first_name, employee.last_name, role.title, department.name AS Department, role.salary, CONCAT(manager.mgr_first, manager.mgr_last) AS Manager ";
+        query += "FROM department INNER JOIN role ON role.department_id = department.id ";
+        query += "INNER JOIN employee ON employee.role_id = role.id ";
+        query += "INNER JOIN manager ON manager.id = employee.manager_id ";
+    
+        connection.query(query, (err, results) => {
+        if (err) throw err;
+        inquirer
+        .prompt([
+        {
+            name: "empFirstName",
+            type: "input",
+            message: "What is the employee's first name?"
+        },
+        {
+            name: "empLastName",
+            type: "input",
+            message: "What is the employee's last name?"
+        },
+        {
+            name: "empRole",
+            type: "rawlist",
+            message: "What this is employee's role?",
+            choices: () => {
+                let choiceArrary = [];
+                for (var i = 0; i < results.length; i++) {
+                    choiceArrary.push(results[i].title);
+                }
+                return choiceArrary;
+            }
+        },
+        {
+            name: "whichMgr",
+            type: "rawlist",
+            message: "Who is this employee's manager?",
+            choices: () => {
+                let choiceArrary = [];
+                for (var i = 0; i < results.length; i++) {
+                    choiceArrary.push(results[i].Manager);
+                }
+                return choiceArrary;
+            }
+        }
+        ])
+        .then( (answer) => {
+            //get the id of the chosen role
+            connection.query("SELECT * FROM orgChart_db.role", (err, results) => {
+                let chosenRoleID;
+                for (var i = 0; i < results.length; i++) {
+                    if (results[i].id === answer.role_id) {
+                        chosenRoleID = results[i].id;
+                    }
+                }
+            });
+            
+            connection.query("INSERT INTO employee SET ?", 
+        {
+            first_name: answer.empFirstName,
+            last_name: answer.empLastName,
+            role_id: answer.empRole.chosenRoleID,
+            manager_id: answer.whichMgr.chosenID
+        }, (err) => {
+            if (err) throw err;
+            console.log("You've added an employee successfully!");
+            start();
+        }
+        );
+        });
+    });
+
+}
 
 // remove employee
 
