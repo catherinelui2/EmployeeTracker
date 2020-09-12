@@ -70,7 +70,6 @@ let start = () => {
 
 //View all Employees
 const viewAllEmployees = () => {
-    console.log("running?");
     let query = "SELECT employee.first_name, employee.last_name, role.title, department.name AS Department, role.salary, CONCAT(manager.mgr_first, manager.mgr_last) AS Manager ";
     query += "FROM department INNER JOIN role ON role.department_id = department.id ";
     
@@ -81,11 +80,60 @@ const viewAllEmployees = () => {
         if (err) throw err;
         console.log("----------------------------------");
         console.table(res);
+        console.log("What would you like to do next?");
+        start();
+    })
+}
+
+//view all employees by dept
+const viewAllEmployeesByDept = () => {
+    let query = "SELECT department.name AS Department, employee.first_name, employee.last_name, role.title, role.salary, CONCAT(manager.mgr_first, manager.mgr_last) AS Manager ";
+    query += "FROM department INNER JOIN role ON role.department_id = department.id ";
+    
+    query += "INNER JOIN employee ON employee.role_id = role.id ";
+    query += "LEFT JOIN manager ON manager.id = employee.manager_id ";
+    query += "ORDER BY department.name ASC";
+
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.log("----------------------------------");
+        console.table(res);
+        console.log("----------------------------------");
+        start();
     })
     
-    console.log("What would you like to do next?");
-    start();
+
 }
+
+//view all employees by mgr
+const viewAllEmployeesByMgr = () => {
+    let query = "SELECT CONCAT(manager.mgr_first, manager.mgr_last) AS Manager, department.name AS Department, employee.first_name, employee.last_name, role.title, role.salary ";
+    query += "FROM department INNER JOIN role ON role.department_id = department.id ";
+    
+    query += "INNER JOIN employee ON employee.role_id = role.id ";
+    query += "INNER JOIN manager ON manager.id = employee.manager_id ";
+    query += "ORDER BY manager.mgr_first ASC";
+
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.log("----------------------------------");
+        console.table(res);
+        console.log("----------------------------------");
+        start();
+    })
+}
+// add employee
+
+
+// remove employee
+
+//update employee role
+
+//update employee mgr
+
+// view total utilized budget of a department (combined salaries of all employees in the dept)
+
+
 
 // allow users to add dept, role, employees
 //view dept, roles, employees
@@ -94,4 +142,4 @@ const viewAllEmployees = () => {
 //bonus update employee manager
 //view employees by manager
 //delete department, roles, employees
-// view total utilized budget of a department (combined salaries of all employees in the dept)
+
