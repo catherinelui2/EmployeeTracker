@@ -1,10 +1,10 @@
 const mySQL = require("mysql");
 const inquirer = require("inquirer");
-const { start } = require("repl");
-const { fstat } = require("fs");
+// const { start } = require("repl");
+// const { fstat } = require("fs");
 
 //create connections to sql database
-const connection = mysql.connection({
+let connection = mySQL.createConnection({
     host: "localhost",
 
     port: 3306,
@@ -24,7 +24,7 @@ connection.connect( (err) => {
 
 
 //function which prompts the users 
-const start = () => {
+let start = () => {
     inquirer. prompt({
         type: "list",
         message: "What would you like to do?",
@@ -32,7 +32,7 @@ const start = () => {
         choices: ["View All Employees", "View All Employees By Department", "View All Employees by Manager", "Add Employee", "Remove Employee", "Update Employee Role", "Update Employee Manager", "Exit"]
     })
     .then((answers) => {
-        switch (answers.role) {
+        switch (answers.actions) {
             case "View All Employees":
                 viewAllEmployees();
                 break;
@@ -70,8 +70,21 @@ const start = () => {
 
 //View all Employees
 const viewAllEmployees = () => {
-    let query = "SELECT orgChart_db.employee, orgChart_db.role, orgChart_db.department";
-    query += "FROM "
+    console.log("running?");
+    let query = "SELECT employee.first_name, employee.last_name, role.title, department.name AS Department, role.salary, CONCAT(manager.mgr_first, manager.mgr_last) AS Manager ";
+    query += "FROM department INNER JOIN role ON role.department_id = department.id ";
+    
+    query += "INNER JOIN employee ON employee.role_id = role.id ";
+    query += "LEFT JOIN manager ON manager.id = employee.manager_id ";
+
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.log("----------------------------------");
+        console.table(res);
+    })
+    
+    console.log("What would you like to do next?");
+    start();
 }
 
 // allow users to add dept, role, employees

@@ -27,8 +27,8 @@ CREATE TABLE employee (
 CREATE TABLE manager (
     PRIMARY KEY (id),
     id INT (11) NOT NULL AUTO_INCREMENT, 
-    first_name VARCHAR (30) NOT NULL,
-    last_name VARCHAR (30) NOT NULL
+    mgr_first VARCHAR (30) NOT NULL,
+    mgr_last VARCHAR (30) NOT NULL
 );
 
 
