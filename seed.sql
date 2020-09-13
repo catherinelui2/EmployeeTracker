@@ -27,9 +27,6 @@ INSERT INTO role (title, salary, department_id)
 VALUES ("Software Engineer", "120000", 2);
 
 INSERT INTO role (title, salary, department_id)
-VALUES ("Sales Lead", "100000", 1);
-
-INSERT INTO role (title, salary, department_id)
 VALUES ("Lawyer", "190000", 4);
 
 INSERT INTO role (title, salary, department_id)

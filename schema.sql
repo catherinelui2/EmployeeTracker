@@ -1,5 +1,6 @@
+DROP DATABASE IF EXISTS orgChart_db;
 CREATE DATABASE orgChart_db;
-
+USE orgChart_db; 
 
 CREATE TABLE department (
 PRIMARY KEY (id),
