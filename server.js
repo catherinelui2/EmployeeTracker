@@ -219,7 +219,7 @@ const addEmployee = () => {
 // remove employee
 const removeEmployee = () => {
     //query employee first and last name and display as Employee
-    connection.query("SELECT CONCAT(first_name, last_name) AS Employee FROM orgChart_db.employee; ", (err, results) => {
+    connection.query("SELECT id, CONCAT(first_name, last_name) AS Employee FROM orgChart_db.employee; ", (err, results) => {
         if (err) throw err;
 
         //start prompt
@@ -243,6 +243,8 @@ const removeEmployee = () => {
             for (var i = 0; i < results.length; i++) {
                 if (results[i].Employee === answer.removeEmp) {
                     chosenEmp = results[i].id;
+                    console.log(chosenEmp);
+
                     connection.query("DELETE FROM employee WHERE ?", 
                     {
                         id: chosenEmp
@@ -259,6 +261,6 @@ const removeEmployee = () => {
 
 //update employee role
 
-//update employee mgr
+//update employee mgr`
 
 // view total utilized budget of a department (combined salaries of all employees in the dept)
