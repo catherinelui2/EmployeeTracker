@@ -211,25 +211,54 @@ const addEmployee = () => {
                         }
                     );
                     });
-                });
-                
-                
+                }); 
             });
     });
 };
 
 // remove employee
+const removeEmployee = () => {
+    //query employee first and last name and display as Employee
+    connection.query("SELECT CONCAT(first_name, last_name) AS Employee FROM orgChart_db.employee; ", (err, results) => {
+        if (err) throw err;
+
+        //start prompt
+        inquirer.prompt([
+            {
+                name: "removeEmp",
+                type: "rawlist",
+                message: "Select the employe that you would like to remove.",
+                choices: () => {
+                    let choiceArrary = [];
+                    for (var i = 0; i < results.length; i++){
+                        choiceArrary.push(results[i].Employee);
+                    }
+                    return choiceArrary;
+                }
+            }
+        ])
+        .then((answer) => {
+            // get chosen employee
+            let chosenEmp;
+            for (var i = 0; i < results.length; i++) {
+                if (results[i].Employee === answer.removeEmp) {
+                    chosenEmp = results[i].id;
+                    connection.query("DELETE FROM employee WHERE ?", 
+                    {
+                        id: chosenEmp
+                    }, (err, res) => {
+                        if (err) throw err;
+                        console.log("You have sucessfully removed " + answer.removeEmp);
+                        start();
+                    })
+                }
+            }           
+        })
+    });
+}
 
 //update employee role
 
 //update employee mgr
 
 // view total utilized budget of a department (combined salaries of all employees in the dept)
-
-// allow users to add dept, role, employees
-//view dept, roles, employees
-// update employees roles
-
-//bonus update employee manager
-//view employees by manager
-//delete department, roles, employees
