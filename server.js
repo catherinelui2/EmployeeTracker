@@ -36,7 +36,7 @@ let start = () => {
                 "Add Employee",
                 "Remove Employee",
                 "Update Employee Role",
-                "Update Employee Manager",
+                //"Update Employee Manager",
                 "Exit",
             ],
         })
@@ -66,9 +66,9 @@ let start = () => {
                     updateEmployeeRole();
                     break;
 
-                case "Update Employee Manager":
-                    updateEmployeeMgr();
-                    break;
+                //case "Update Employee Manager":
+                //updateEmployeeMgr();
+                //break;
                 case "Exit":
                     console.log("Thank you for using this App!");
                     connection.end();
@@ -282,78 +282,80 @@ const updateEmployeeRole = () => {
 
         connection.query("SELECT * FROM orgChart_db.role; ", (err, result) => {
             if (err) throw err;
-            
-        
-        inquirer
-            .prompt([
-                {
-                    name: "employee",
-                    type: "rawlist",
-                    message: "Which employee would you like to update?",
-                    choices: () => {
-                        let choiceArrary = [];
-                        for (var i = 0; i < results.length; i++) {
-                            choiceArrary.push(results[i].Employee);
-                        }
-                        return choiceArrary;
-                    },
-                },
-                {
-                    name: "role",
-                    type: "rawlist",
-                    message: "Which role are they switching to?",
-                    choices: () => {
-                        let choiceArrary = [];
 
-                        for (var j = 0; j < result.length; j++) {
-                            choiceArrary.push(result[j].title);
-                        }
+            inquirer
+                .prompt([
+                    {
+                        name: "employee",
+                        type: "rawlist",
+                        message: "Which employee would you like to update?",
+                        choices: () => {
+                            let choiceArrary = [];
+                            for (var i = 0; i < results.length; i++) {
+                                choiceArrary.push(results[i].Employee);
+                            }
                             return choiceArrary;
+                        },
                     },
-                },
-            ])
-            .then((answer) => {
-                connection.query("SELECT employee.id, CONCAT(employee.first_name, employee.last_name) AS Employee, employee.role_id, role.title FROM employee INNER JOIN role ON role.id = employee.role_id; ", (err, results) => {
-                    if (err) throw err;
-                    
-                    let chosenEmp; 
+                    {
+                        name: "role",
+                        type: "rawlist",
+                        message: "Which role are they switching to?",
+                        choices: () => {
+                            let choiceArrary = [];
 
-                    for (var i = 0; i < results.length; i++) {
-                        if (results[i].Employee === answer.employee) {
-                            chosenEmp = results[i].id;
-                        }
-                    }
-                        let chosenRoleID;
+                            for (var j = 0; j < result.length; j++) {
+                                choiceArrary.push(result[j].title);
+                            }
+                            return choiceArrary;
+                        },
+                    },
+                ])
+                .then((answer) => {
+                    connection.query(
+                        "SELECT employee.id, CONCAT(employee.first_name, employee.last_name) AS Employee, employee.role_id, role.title FROM employee INNER JOIN role ON role.id = employee.role_id; ",
+                        (err, results) => {
+                            if (err) throw err;
 
-                        for (var j =0; j < result.length; i++) {
-                            console.log(result[i].title);
-                            if (result[i].title === answer.role){
-                                chosenRoleID = result[i].id;
-                                console.log("what is ChosenROleID  " + chosenRoleID);
-                            } else {
-                                console.log("This employee is already at this role.");
+                            let chosenEmp;
+
+                            for (var i = 0; i < results.length; i++) {
+                                if (results[i].Employee === answer.employee) {
+                                    chosenEmp = results[i].id;
+                                }
+                            }
+                            let chosenRoleID;
+
+                            for (var j = 0; j < result.length; j++) {
+                                if (result[j].title === answer.role) {
+                                    console.log("This employee is already at this role.");
+                                    return;
+                                } else {
+                                    chosenRoleID = result[j].id;
+                                    console.log("what is result " + result[j].title + result[j].id);
+
+                                    connection.query(
+                                        "UPDATE orgChart_db.employee SET ? WHERE ? ;",
+                                        [
+                                            {
+                                                role_id: chosenRoleID,
+                                            },
+                                            {
+                                                id: chosenEmp,
+                                            },
+                                        ],
+                                        (error) => {
+                                            if (error) throw err;
+                                            console.log("Employee role as been updated.");
+                                        }
+                                    );
+                                }
                             }
                         }
-
-                        connection.query("UPDATE orgChart_db.employee SET ? WHERE ? ;", [
-                            {
-                                role_id: chosenRoleID
-                            },
-                            {
-                                id: chosenEmp
-                            }
-                        ],
-                        (err) => {
-                            if (error) throw err;
-                            console.log("Employee role as been updated.");
-                        }
-                        );
-                    
-                    
+                    );
                 });
-            });
+        });
     });
-});
 };
 
 //update employee mgr`
