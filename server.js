@@ -1,7 +1,6 @@
 const mySQL = require("mysql");
 const inquirer = require("inquirer");
-// const { start } = require("repl");
-// const { fstat } = require("fs");
+
 
 //create connections to sql database
 let connection = mySQL.createConnection({
@@ -138,7 +137,7 @@ const addEmployee = () => {
         "SELECT employee.first_name, employee.last_name, role.title, department.name AS Department, role.salary, CONCAT(manager.mgr_first, manager.mgr_last) AS Manager ";
     query += "FROM department INNER JOIN role ON role.department_id = department.id ";
     query += "INNER JOIN employee ON employee.role_id = role.id ";
-    query += "LEFT JOIN manager ON manager.id = employee.manager_id ";
+    query += "INNER JOIN manager ON manager.id = employee.manager_id ";
 
     connection.query(query, (err, results) => {
         if (err) throw err;
@@ -182,8 +181,14 @@ const addEmployee = () => {
             .then((answer) => {
                 //get the id of the chosen role
                 connection.query("SELECT * FROM orgChart_db.role", (err, results) => {
+                    if (err) throw err;
+
                     let chosenRoleID;
+
                     for (var i = 0; i < results.length; i++) {
+                        console.log(results[i].title);
+                        console.log("empRole " + answer.empRole);
+
                         if (results[i].title === answer.empRole) {
                             chosenRoleID = results[i].id;
                         }
@@ -192,6 +197,8 @@ const addEmployee = () => {
                     connection.query(
                         "SELECT id, CONCAT(manager.mgr_first, manager.mgr_last) AS Manager FROM orgChart_db.manager; ",
                         (err, result) => {
+                            if (err) throw err;
+
                             let chosenMgrID;
                             for (var j = 0; j < result.length; j++) {
                                 if (result[j].Manager === answer.whichMgr) {
@@ -254,7 +261,7 @@ const removeEmployee = () => {
                             connection.query(
                                 "DELETE FROM employee WHERE ?",
                                 {
-                                    id: chosenEmp,
+                                    id: chosenEmp
                                 },
                                 (err, res) => {
                                     if (err) throw err;
@@ -272,10 +279,7 @@ const removeEmployee = () => {
 //update employee role
 const updateEmployeeRole = () => {
     let query =
-        "SELECT CONCAT(employee.first_name, employee.last_name) AS Employee, role.title, department.name AS Department, role.salary, CONCAT(manager.mgr_first, manager.mgr_last) AS Manager ";
-    query += "FROM department INNER JOIN role ON role.department_id = department.id ";
-    query += "INNER JOIN employee ON employee.role_id = role.id ";
-    query += "LEFT JOIN manager ON manager.id = employee.manager_id ";
+        "SELECT employee.id, CONCAT(employee.first_name, employee.last_name) AS Employee, employee.role_id, role.title FROM role INNER JOIN employee ON employee.role_id = role.id";
 
     connection.query(query, (err, results) => {
         if (err) throw err;
@@ -327,12 +331,13 @@ const updateEmployeeRole = () => {
                             let chosenRoleID;
 
                             for (var j = 0; j < result.length; j++) {
+        
                                 if (result[j].title === answer.role) {
                                     console.log("This employee is already at this role.");
-                                    return;
+                                    
                                 } else {
                                     chosenRoleID = result[j].id;
-                                    console.log("what is result " + result[j].title + result[j].id);
+                                    console.log(result[j])
 
                                     connection.query(
                                         "UPDATE orgChart_db.employee SET ? WHERE ? ;",
