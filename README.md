@@ -1,7 +1,7 @@
 # EmployeeTracker
 Employee Tracker
 
-[DEMO](https://catherinelui2.github.io/EmployeeTracker/EmployeeTracker.gif)
+[](https://catherinelui2.github.io/EmployeeTracker/EmployeeTracker.gif)
 
 # Unit 12 MySQL Homework: Employee Tracker
 
