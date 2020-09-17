@@ -141,7 +141,10 @@ const addEmployee = () => {
 
     connection.query(query, (err, results) => {
         if (err) throw err;
-        inquirer
+
+        connection.query("SELECT id, CONCAT(mgr_first, mgr_last) AS Manager FROM orgChart_db.manager", (error, resultMgr) => {
+            if (error) throw error;
+            inquirer
             .prompt([
                 {
                     name: "empFirstName",
@@ -158,72 +161,72 @@ const addEmployee = () => {
                     type: "rawlist",
                     message: "What this is employee's role?",
                     choices: () => {
-                        let choiceArrary = [];
+                        let choiceArray = [];
                         for (var i = 0; i < results.length; i++) {
-                            choiceArrary.push(results[i].title);
+                            choiceArray.push(results[i].title);
                         }
-                        return choiceArrary;
-                    },
+                        return choiceArray;
+                    }
                 },
                 {
                     name: "whichMgr",
                     type: "rawlist",
                     message: "Who is this employee's manager?",
                     choices: () => {
-                        let choiceArrary = [];
-                        for (var i = 0; i < results.length; i++) {
-                            choiceArrary.push(results[i].Manager);
+                        let choiceArray = [];
+
+                        for (var j = 0; j < resultMgr.length; j++) {
+                            choiceArray.push(resultMgr[j].Manager);
                         }
-                        return choiceArrary;
+                        return choiceArray;
                     },
-                },
-            ])
-            .then((answer) => {
-                //get the id of the chosen role
-                connection.query("SELECT * FROM orgChart_db.role", (err, results) => {
-                    if (err) throw err;
-
-                    let chosenRoleID;
-
-                    for (var i = 0; i < results.length; i++) {
-                        console.log(results[i].title);
-                        console.log("empRole " + answer.empRole);
-
-                        if (results[i].title === answer.empRole) {
-                            chosenRoleID = results[i].id;
-                        }
-                    }
-
-                    connection.query(
-                        "SELECT id, CONCAT(manager.mgr_first, manager.mgr_last) AS Manager FROM orgChart_db.manager; ",
-                        (err, result) => {
-                            if (err) throw err;
-
-                            let chosenMgrID;
-                            for (var j = 0; j < result.length; j++) {
-                                if (result[j].Manager === answer.whichMgr) {
-                                    chosenMgrID = result[j].id;
-                                }
+                },])
+                .then((answer) => {
+                    //get the id of the chosen role
+                    connection.query("SELECT * FROM orgChart_db.role", (err, results) => {
+                        if (err) throw err;
+    
+                        let chosenRoleID;
+    
+                        for (var i = 0; i < results.length; i++) {
+                            //to find out which employee role was selected
+                            if (results[i].title === answer.empRole) {
+                                chosenRoleID = results[i].id;
                             }
-                            connection.query(
-                                "INSERT INTO employee SET ?",
-                                {
-                                    first_name: answer.empFirstName,
-                                    last_name: answer.empLastName,
-                                    role_id: chosenRoleID,
-                                    manager_id: chosenMgrID,
-                                },
-                                (err) => {
-                                    if (err) throw err;
-                                    console.log("You've added an employee successfully!");
-                                    start();
-                                }
-                            );
                         }
-                    );
+    
+                        connection.query(
+                            "SELECT id, CONCAT(manager.mgr_first, manager.mgr_last) AS Manager FROM orgChart_db.manager; ",
+                            (err, result) => {
+                                if (err) throw err;
+                                // to find out which manager was selected
+                                let chosenMgrID;
+
+                                for (var j = 0; j < result.length; j++) {
+                                    if (result[j].Manager === answer.whichMgr) {
+                                        chosenMgrID = result[j].id;
+                                    }
+                                }
+                                connection.query(
+                                    "INSERT INTO employee SET ?", // added new employee info into orgChart_db
+                                    {
+                                        first_name: answer.empFirstName,
+                                        last_name: answer.empLastName,
+                                        role_id: chosenRoleID,
+                                        manager_id: chosenMgrID,
+                                    },
+                                    (err) => {
+                                        if (err) throw err;
+                                        console.log("You've added an employee successfully!");
+                                        start();
+                                    }
+                                );
+                            }
+                        );
+                    });
                 });
-            });
-    });
+        });
+        }) 
 };
 
 // remove employee
@@ -242,11 +245,11 @@ const removeEmployee = () => {
                         type: "rawlist",
                         message: "Select the employe that you would like to remove.",
                         choices: () => {
-                            let choiceArrary = [];
+                            let choiceArray = [];
                             for (var i = 0; i < results.length; i++) {
-                                choiceArrary.push(results[i].Employee);
+                                choiceArray.push(results[i].Employee);
                             }
-                            return choiceArrary;
+                            return choiceArray;
                         },
                     },
                 ])
@@ -256,8 +259,7 @@ const removeEmployee = () => {
                     for (var i = 0; i < results.length; i++) {
                         if (results[i].Employee === answer.removeEmp) {
                             chosenEmp = results[i].id;
-                            console.log(chosenEmp);
-
+                            // Delete selected employee
                             connection.query(
                                 "DELETE FROM employee WHERE ?",
                                 {
@@ -282,80 +284,84 @@ const updateEmployeeRole = () => {
         "SELECT employee.id, CONCAT(employee.first_name, employee.last_name) AS Employee, employee.role_id, role.title FROM role INNER JOIN employee ON employee.role_id = role.id";
 
     connection.query(query, (err, results) => {
+
         if (err) throw err;
 
-        connection.query("SELECT * FROM orgChart_db.role; ", (err, result) => {
-            if (err) throw err;
+        connection.query("SELECT * FROM orgChart_db.role; ", (error, result) => {
+            if (error) throw error;
 
             inquirer
                 .prompt([
-                    {
+                    { //choices from the employee table
                         name: "employee",
                         type: "rawlist",
                         message: "Which employee would you like to update?",
                         choices: () => {
-                            let choiceArrary = [];
+                            let choiceArray = [];
                             for (var i = 0; i < results.length; i++) {
-                                choiceArrary.push(results[i].Employee);
-                            }
-                            return choiceArrary;
+                                const x = results[i];
+                                choiceArray.push(
+                                    `${x.Employee} /${x.id}`)
+                                }
+                            return choiceArray;
                         },
                     },
-                    {
+                    {// choices from the role table
                         name: "role",
                         type: "rawlist",
                         message: "Which role are they switching to?",
                         choices: () => {
-                            let choiceArrary = [];
+                            let choiceArray = [];
 
                             for (var j = 0; j < result.length; j++) {
-                                choiceArrary.push(result[j].title);
+                                const y = result[j];
+                                choiceArray.push(`${y.title} /${y.id}`);
                             }
-                            return choiceArrary;
+                            return choiceArray;
                         },
                     },
                 ])
                 .then((answer) => {
-                    connection.query(
-                        "SELECT employee.id, CONCAT(employee.first_name, employee.last_name) AS Employee, employee.role_id, role.title FROM employee INNER JOIN role ON role.id = employee.role_id; ",
-                        (err, results) => {
-                            if (err) throw err;
+                    const splitArr = answer.employee.split('/');
+                    const employeeName = splitArr[0];
+                    const employeeId = splitArr[1];
 
-                            let chosenEmp;
+                    const splitArrRole = answer.role.split('/');
+                    const employeeTitle = splitArrRole[0];
+                    const roleId = splitArrRole[1];
 
-                            for (var i = 0; i < results.length; i++) {
-                                if (results[i].Employee === answer.employee) {
-                                    chosenEmp = results[i].id;
-                                }
-                            }
+                    connection.query( // query to get employee info that we seleted in the first prompt
+                        `SELECT employee.id, CONCAT(employee.first_name, employee.last_name) AS Employee, employee.role_id, role.title FROM employee INNER JOIN role ON role.id = employee.role_id
+                        WHERE employee.id = ${employeeId.toString()}; `,
+                        (errAgain, resultsAgain) => {
+                            if (errAgain) throw errAgain;
+                            
                             let chosenRoleID;
 
-                            for (var j = 0; j < result.length; j++) {
-        
-                                if (result[j].title === answer.role) {
+                                if (resultsAgain.role_id === roleId) {
+
                                     console.log("This employee is already at this role.");
                                     
                                 } else {
-                                    chosenRoleID = result[j].id;
-                                    console.log(result[j])
+                                    chosenRoleID = roleId;
 
                                     connection.query(
-                                        "UPDATE orgChart_db.employee SET ? WHERE ? ;",
+                                        "UPDATE orgChart_db.employee SET ? WHERE ?",
                                         [
                                             {
                                                 role_id: chosenRoleID,
                                             },
                                             {
-                                                id: chosenEmp,
+                                                id: employeeId,
                                             },
                                         ],
                                         (error) => {
-                                            if (error) throw err;
+                                            if (error) throw error;
                                             console.log("Employee role as been updated.");
                                         }
                                     );
                                 }
-                            }
+                            
                         }
                     );
                 });
@@ -363,6 +369,3 @@ const updateEmployeeRole = () => {
     });
 };
 
-//update employee mgr`
-
-// view total utilized budget of a department (combined salaries of all employees in the dept)
